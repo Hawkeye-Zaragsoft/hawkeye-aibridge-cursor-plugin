@@ -1,0 +1,27 @@
+{
+  "name": "hawkeye-aibridge-cursor-plugin",
+  "version": "1.0.0",
+  "description": "Hawkeye AI Bridge MCP server plugin for Cursor - local code search with 91% token savings",
+  "author": "Zaragsoft",
+  "license": "MIT",
+  "keywords": [
+  "cursor",
+  "mcp",
+  "code-search",
+  "ai",
+  "agent",
+  "local-search",
+  "token-efficient",
+  "token-savings",
+  "save-tokens",
+  "token-optimization",
+  "efficient-search",
+  "cost-reduction",
+  "ai-optimization",
+  "context-efficient"
+],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hawkeye-Zaragsoft/hawkeye-aibridge-mcp"
+  }
+}

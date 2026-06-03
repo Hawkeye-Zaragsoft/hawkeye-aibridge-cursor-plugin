@@ -1,0 +1,131 @@
+Hawkeye Search - Dual License Agreement
+
+Version 1.0.0
+Copyright (c) 2026 Zaragsoft. All rights reserved.
+
+================================================================================
+
+OPEN SOURCE COMPONENT (MIT License)
+================================================================================
+
+The following components are licensed under the MIT License and are free for
+modification and redistribution:
+
+- hawkeye-search SKILL.md (Claude skill prompt and definition)
+- SKILL.md parameter extraction and query handling code
+- evals.json (test cases and examples)
+- plugin.json (skill metadata)
+
+MIT License Text:
+-----------------
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+
+PROPRIETARY COMPONENTS
+================================================================================
+
+The following components are proprietary and remain the exclusive property of
+Zaragsoft. These components may NOT be modified, reverse-engineered,
+decompiled, or redistributed in any form without prior written consent:
+
+- HawkeyeMcpServer.exe (compiled binary executable)
+- Program.cs (MCP server implementation)
+- HawkeyeClient.cs (Hawkeye integration client)
+- Models/ directory (data models and structures)
+- Tools/ directory (MCP tool implementations)
+- HawkeyeMcpServer.csproj (.NET project file)
+- All other backend source code and configuration files
+
+================================================================================
+
+USAGE RIGHTS
+================================================================================
+
+Installation and Use:
+- You may install and use HawkeyeMcpServer as-is at no cost
+- You may use this software for personal, educational, and commercial purposes
+- No permission is required for evaluation or production use
+
+Modifications:
+- You may modify ONLY the SKILL.md file for your own needs
+- You may NOT modify, decompile, or reverse-engineer the MCP executable
+- You may NOT modify or redistribute the proprietary backend code
+
+Redistribution:
+- You may redistribute the SKILL.md file under MIT License terms
+- You may NOT redistribute HawkeyeMcpServer.exe or any proprietary components
+- You may NOT create derivative works of the proprietary code
+
+Commercial Use:
+- Commercial use is permitted without additional licensing
+- No fees or royalties are required for normal use
+- Custom development, consulting, or feature licensing available upon request
+
+================================================================================
+
+THIRD-PARTY LICENSES
+================================================================================
+
+This project uses the following libraries and their respective licenses:
+
+- Anthropic SDK (Claude): Apache 2.0 License
+- .NET Core: MIT License
+- Hawkeye Search Engine: [Hawkeye License - see https://www.zaragsoft.se/]
+
+Please refer to respective documentation for full license terms.
+
+================================================================================
+
+INTELLECTUAL PROPERTY
+================================================================================
+
+Hawkeye Search, the Hawkeye MCP Server, and all associated proprietary code
+are intellectual property of Zaragsoft and protected under copyright law.
+
+================================================================================
+
+WARRANTY DISCLAIMER
+================================================================================
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL ZARAGSOFT BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+
+CONTACT & LICENSING
+================================================================================
+
+For licensing inquiries, custom development, or written permission to modify
+proprietary components:
+
+Zaragsoft
+Email: fredrik.zaar@zaragsoft.se
+Website: https://www.zaragsoft.se
+
+================================================================================
+
+Last Updated: 2026-05-17
+Version: 1.0.0

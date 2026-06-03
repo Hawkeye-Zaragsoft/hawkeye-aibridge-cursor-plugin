@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "hawkeye": {
+      "command": "C:\\Program Files\\Hawkeye\\AIBridge\\HawkeyeAIBridge.exe"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "basic-search",
+    "prompt": "Find the Player class",
+    "expected": {
+      "query": "Player class",
+      "maxresults": 50,
+      "groups": []
+    },
+    "description": "Basic search for a class with type keyword preserved"
+  },
+  {
+    "id": "with-maxresults",
+    "prompt": "Search for armor enum, maxresults 20",
+    "expected": {
+      "query": "armor enum",
+      "maxresults": 20,
+      "groups": []
+    },
+    "description": "Search with custom maxresults parameter"
+  },
+  {
+    "id": "with-groups-comma",
+    "prompt": "Look for GameManager in Scripts,Core groups",
+    "expected": {
+      "query": "GameManager",
+      "maxresults": 50,
+      "groups": ["Scripts", "Core"]
+    },
+    "description": "Search with comma-separated groups"
+  },
+  {
+    "id": "with-groups-and",
+    "prompt": "Find render in Rendering and Engine groups, maxresults 10",
+    "expected": {
+      "query": "render",
+      "maxresults": 10,
+      "groups": ["Rendering", "Engine"]
+    },
+    "description": "Search with 'and'-separated groups and custom maxresults"
+  },
+  {
+    "id": "complex-query",
+    "prompt": "Search for enum loadoutType_t",
+    "expected": {
+      "query": "enum loadoutType_t",
+      "maxresults": 50,
+      "groups": []
+    },
+    "description": "Search preserving both type keyword and specific term"
+  },
+  {
+    "id": "natural-phrasing",
+    "prompt": "Where is UpdateHealth defined?",
+    "expected": {
+      "query": "UpdateHealth",
+      "maxresults": 50,
+      "groups": []
+    },
+    "description": "Natural phrasing with filler words removed"
+  }
+]
