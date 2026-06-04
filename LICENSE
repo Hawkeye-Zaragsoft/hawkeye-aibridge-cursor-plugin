@@ -1,4 +1,4 @@
-Hawkeye Search - Dual License Agreement
+Hawkeye AI Bridge - Dual License Agreement
 
 Version 1.0.0
 Copyright (c) 2026 Zaragsoft. All rights reserved.
@@ -45,13 +45,13 @@ The following components are proprietary and remain the exclusive property of
 Zaragsoft. These components may NOT be modified, reverse-engineered,
 decompiled, or redistributed in any form without prior written consent:
 
-- HawkeyeMcpServer.exe (compiled binary executable)
-- Program.cs (MCP server implementation)
-- HawkeyeClient.cs (Hawkeye integration client)
-- Models/ directory (data models and structures)
-- Tools/ directory (MCP tool implementations)
-- HawkeyeMcpServer.csproj (.NET project file)
-- All other backend source code and configuration files
+- HawkeyeAIBridge.exe (compiled binary executable)
+- HawkeyeAIBridge.dll (compiled assembly)
+- System.IO.Pipelines.dll (runtime dependency)
+- System.Text.Encodings.Web.dll (runtime dependency)
+- System.Text.Json.dll (runtime dependency)
+- HawkeyeAIBridge.runtimeconfig.json (runtime configuration)
+- HawkeyeAIBridge.deps.json (dependency manifest)
 
 ================================================================================
 
@@ -59,18 +59,18 @@ USAGE RIGHTS
 ================================================================================
 
 Installation and Use:
-- You may install and use HawkeyeMcpServer as-is at no cost
+- You may install and use HawkeyeAIBridge as-is at no cost
 - You may use this software for personal, educational, and commercial purposes
 - No permission is required for evaluation or production use
 
 Modifications:
 - You may modify ONLY the SKILL.md file for your own needs
-- You may NOT modify, decompile, or reverse-engineer the MCP executable
-- You may NOT modify or redistribute the proprietary backend code
+- You may NOT modify, decompile, or reverse-engineer the executable
+- You may NOT modify or redistribute the proprietary components
 
 Redistribution:
 - You may redistribute the SKILL.md file under MIT License terms
-- You may NOT redistribute HawkeyeMcpServer.exe or any proprietary components
+- You may NOT redistribute HawkeyeAIBridge.exe or any proprietary components
 - You may NOT create derivative works of the proprietary code
 
 Commercial Use:
@@ -87,7 +87,7 @@ This project uses the following libraries and their respective licenses:
 
 - Anthropic SDK (Claude): Apache 2.0 License
 - .NET Core: MIT License
-- Hawkeye Search Engine: [Hawkeye License - see https://www.zaragsoft.se/]
+- Hawkeye Search Engine: [Hawkeye License - see https://hawkeye-search.com]
 
 Please refer to respective documentation for full license terms.
 
@@ -96,8 +96,10 @@ Please refer to respective documentation for full license terms.
 INTELLECTUAL PROPERTY
 ================================================================================
 
-Hawkeye Search, the Hawkeye MCP Server, and all associated proprietary code
+Hawkeye AI Bridge, the Hawkeye MCP Server, and all associated proprietary code
 are intellectual property of Zaragsoft and protected under copyright law.
+
+Hawkeye is a registered trademark of Zaragsoft.
 
 ================================================================================
 
@@ -127,5 +129,5 @@ Website: https://www.zaragsoft.se
 
 ================================================================================
 
-Last Updated: 2026-05-17
-Version: 1.0.0
+Last Updated: 2026-06-04
+Version
