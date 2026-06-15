@@ -1,6 +1,6 @@
 ---
 name: hawkeye-search
-description: Execute fast local code searches using Hawkeye with natural language parameter extraction. Two modes: simple lookup (Hawkeye minimal) or deep analysis (Hawkeye minimal + Grep).
+description: Execute fast local code searches using Hawkeye with natural language parameter extraction. Default flow is Hawkeye minimal (locations) + hawkeye_expand_context for merged, server-side context retrieval in one batched call. Cross-pattern/full-content browsing is handled separately via the Hawkeye AI Bridge artifact, not by this skill.
 compatibility: 
   - claude-opus-4-6
   - claude-sonnet-4-6
@@ -11,68 +11,28 @@ compatibility:
 
 ## When to Use
 
-Use this skill whenever the user wants to find anything in the codebase. This is the **default first step** for all code searches — not just explicit Hawkeye requests. Typical triggering patterns include:
+Use this skill whenever the user wants to find anything in the indexed project — code **or assets/content**. This is the **default first step** for all such searches — not just explicit Hawkeye requests. Typical triggering patterns include:
 
 - Finding specific code elements: "Where is class Player?", "Search for enum signInToken"
 - Searching for functions, classes, enums, methods, variables, or constants
 - Finding relationships between code: "What uses ThePlayerList?", "Who calls UpdateHealth?"
 - Code review/debugging: "Is this variable used safely?", "Find potential bugs in X"
 - Any request to locate, trace, explore, or analyze code
+- **Asset/content lookups**: "Do we have any sounds for health?", "Do we have any icons for armor?", "Is there a texture for the supply truck?", "What voice lines exist for the General?"
+  - These are still Mode 1 / Mode 1.5 searches — `hawkeye_search_minimal` indexes filenames and string references (e.g. `.ini` entries, asset definitions, sound event names) just like code symbols. Search for the descriptive term (e.g. `"health sound"`, `"armor icon"`) and treat hits in `.ini`/data files the same as code hits.
+  - If the goal is just "does X exist / where is it" → Mode 1 is enough.
+  - If the goal is "show me how it's referenced/used" → Mode 1.5 (`hawkeye_expand_context`) to see the surrounding definition block.
 
 **Skip this skill if:**
 - The query is empty or only contains filler words
-- The user is not searching for code elements
+- The user is not searching for code or assets in this project
 - The query should use Claude's native knowledge instead
 
 ---
 
-## 🎯 Quick Decision: Which Mode to Use?
+## Search & Context Workflow
 
-**This is the most important section.** Read this first.
-
-### Ask Yourself One Question:
-
-**"Do I need to SEE THE CODE around the location, or just KNOW WHERE IT IS?"**
-
-**→ Just know WHERE (the file and line number)?**
-- Use **Mode 1: Location Lookup** ✅
-- Returns: File paths + line numbers only
-- Cost: 100 tokens
-- Speed: <1 second
-- Answer: "Player class is at PlayerController.cs:42"
-
-**→ Need to SEE surrounding code/context?**
-- Use **Mode 2: Code Analysis** 
-- Returns: File + line + code around it
-- Cost: 250-350 tokens
-- Speed: 2-3 seconds
-- Answer: "Player class at line 42, and here's what's around it..."
-
-### ⚠️ DEFAULT: Always start with Mode 1
-
-**Use Mode 1 for 80% of your searches.** Only switch to Mode 2 if you specifically need context.
-
-```
-Mode 1 (Location):     ██ 100 tokens        (~27x cheaper)
-Mode 2 (Analysis):     ████████ 300 tokens
-Full codebase search:  ██████████████████████████ 2,700+ tokens (WRONG)
-```
-
----
-
-## Two-Mode Approach
-
-### What "Minimal" Actually Means
-
-**"Minimal" = "Focused on exactly what you asked for"**
-- NOT "limited/weak/incomplete"
-- NOT "gives you less"
-- ACTUALLY "gives you ONLY what you need" (and wastes zero tokens on extras)
-
-When you ask "Where is X?", you want a location, not the entire codebase.  
-`hawkeye_search_minimal` gives you **exactly that** — fast and cheap.
-
-Choose your mode based on what you're looking for:
+Mode 1.5 (search + `hawkeye_expand_context`) is the **default** for almost everything. Mode 1 alone is only for the narrow case where you genuinely just want a location, with no need to see the code.
 
 ### Mode 1: Simple Location Lookup
 **Use for:** "Where is X?", "Find X", "Search for X"
@@ -100,98 +60,70 @@ Choose your mode based on what you're looking for:
 
 ---
 
-### Mode 2: Discovery & Bug Finding
-**Use for:** "Is X safe?", "Find bugs in X", "Analyze code", "Reason about X"
+### Mode 1.5: Targeted Context Extraction (default)
+**Use for:** anything beyond a bare location — "Is X safe?", "Find bugs in X", "Analyze X", "Show me X with context", "What uses X?", etc.
 
-**Method:** `hawkeye_search_minimal` (Phase 1) + `grep` (Phase 2)
-
-#### Phase 1: Pinpoint Locations with Hawkeye
+**Why this exists:** `hawkeye_search_minimal` returns results **grouped by file**, each with a `lines` array of every hit in that file, e.g.:
 ```
-hawkeye_search_minimal("validCustom")
-→ Find: 22 exact locations in specific files (~100 tokens)
-Result: validCustom.cpp:149, validCustom.cpp:58, LadderDefs.cpp:177, etc.
+{"file": "PartitionManager.cpp", "lines": [1289,1325,1353,...,5453]}
 ```
+Re-searching the file with `grep -C 3 "pattern" file` re-matches by pattern — for a file with 30 hits that produces 30 context blocks, often bigger than the file itself, and it can also match occurrences Mode 1 never flagged. Reading the whole file is worse: a 5,000+ line file costs tens of thousands of tokens just to open.
 
-#### Phase 2: Get Context with Grep
+**Method — call `hawkeye_expand_context` directly:**
+1. Take the Mode 1 result(s) — one or more `{"file": ..., "lines": [...]}` entries.
+2. Pass them straight through as `hits: [{file, lines}, ...]` to `hawkeye_expand_context`. The server does the merging *and* the reading in one call — there is no manual range math and no per-range `Read` calls.
+3. **Defaults (omit unless the user asks for something different):** `contextBefore=2, contextAfter=5, mergeGap=8, maxTotalLines=1000`.
+   - Asymmetric `-2/+5` matches how code reads — the lines *after* a hit usually explain "how it's used"; 2 lines before is enough for the immediate guard/declaration.
+   - `mergeGap=8` merges hits within 8 lines of each other into one snippet, so adjacent `-2/+5` windows that touch/overlap collapse into a single block instead of duplicating shared lines.
+4. **If the user specifies a context size N** (e.g. "show me 10 lines of context", "wider context", "just a couple lines around it") — pass `contextBefore=N, contextAfter=N, mergeGap=2N` instead.
+5. **Batching for large sweeps:** the default `maxTotalLines=1000` caps a single call at roughly **~140 hits** (measured — varies with how clustered the hits are; denser clusters merge into fewer lines and raise the effective ceiling, sparse hits lower it).
+   - For typical single-file or few-file lookups (well under 100 hits total), one call is enough.
+   - For full-project sweeps with hundreds of hits, split the `hits` array into batches of roughly 120-140 hits (group by file so a file's hits aren't split across batches where possible) and issue one `hawkeye_expand_context` call per batch.
+   - **Always check the response's `truncated` and `truncated_clusters` fields.** If `truncated: true`, the listed `truncated_clusters` were cut off — issue one more call with just those hits (with the same context settings) to get full coverage. Don't assume a clean cutoff at exactly 140 hits.
+   - Rule of thumb from a measured 808-hit/168-file sweep: ~6 batched `hawkeye_expand_context` calls covered everything, vs ~11 natural chunks for an equivalent `grep -C` sweep — fewer round trips, not more, even at full-project scale.
+
+**Example — a file with 30 hits spanning lines 1289-5453 (file is 5,500+ lines):**
+- Whole-file read: ~5,500 lines ≈ tens of thousands of tokens
+- Re-grep per pattern (`grep -C3` × 30 occurrences): large, duplicated, and not limited to the 30 Mode-1 lines
+- `hawkeye_expand_context` with default `-2/+5`, `mergeGap=8`: 18 merged snippets, ~184 lines total (~1,950 tokens), returned in **one call** — roughly **28x cheaper than a full-file read** and far fewer round trips than 18 separate `Read` calls
+
+**Real example: "Is LadderPrefMap used safely?"**
 ```
-For each critical location:
-grep -C 3 "validCustom" file.cpp
-→ Show lines around location with surrounding context (~150-200 tokens)
-```
+Mode 1: hawkeye_search_minimal("LadderPrefMap")
+→ Returns: {"file": "PopupHostGame.cpp", "lines": [189, 196, 210, 284, 292]}
 
-**Total Mode 2 cost:** ~250-350 tokens vs 2500+ for traditional Grep only
+Mode 1.5: hawkeye_expand_context(hits=[{"file": "PopupHostGame.cpp", "lines": [189,196,210,284,292]}])
+→ (defaults: contextBefore=2, contextAfter=5, mergeGap=8)
+→ Returns 3 merged snippets covering ranges [187-201], [208-215], [282-297]
 
-**When to use:**
-- "Is validCustom used safely everywhere?"
-- "Find potential bugs in GameManager usage"
-- "Verify iterator access patterns are correct"
-- "Analyze how this function is initialized"
-- "Find unsafe pointer dereferences"
-
-**Process:**
-1. Hawkeye pinpoints exact locations (you know WHERE)
-2. Grep gets context around those lines (you see HOW)
-3. Combined view reveals patterns and potential issues
-
-**Real Examples:**
-
-```
-Mode 2 Example 1: "Is LadderPrefMap used safely?"
-
-Phase 1 - Hawkeye Minimal:
-hawkeye_search_minimal("LadderPrefMap") 
-→ Returns: Lines 189, 196, 210, 284, 292 in PopupHostGame.cpp
-
-Phase 2 - Grep Context:
-grep -C 2 "const LadderPrefMap\|LadderPrefMap::const_iterator" PopupHostGame.cpp
-→ Shows:
-  const LadderPrefMap recentLadders = ladPref.getRecentLadders();
-  for (LadderPrefMap::const_iterator cit = recentLadders.begin(); ...)
-
-Result: ✅ SAFE - confirmed const_iterator pattern with proper bounds
+Result: ✅ SAFE - confirmed const_iterator pattern with proper bounds,
+        all 5 hits covered in 1 call, no re-search needed
 ```
 
-```
-Mode 2 Example 2: "Find bugs in validCustom"
+**If the default misses needed context:** the most common case is a guard/condition or comment more than 2 lines above the hit. Rather than switching the whole search to symmetric `±N`, re-call `hawkeye_expand_context` for just that file/hit with a larger `contextBefore` — keep the rest at the default.
 
-Phase 1 - Hawkeye Minimal:
-hawkeye_search_minimal("validCustom")
-→ Returns: Lines 149 (assignment), 177 (usage), 196 (usage), etc.
+**When NOT to use:** Mode 1.5 applies even when a file has only 1-2 hits — `hawkeye_expand_context` handles trivial cases the same way, so there's no "simpler" full-file fallback to fall back to. Skip Mode 1.5 only if the user **explicitly** asks to read the whole file or the whole function/class (e.g. "show me the entire function", "read the full file") — then do that full read directly instead.
 
-Phase 2 - Grep Context:
-grep -C 3 "validCustom = " LadderDefs.cpp
-→ Shows:
-  lad->validCustom = atoi(line.str() + 7);
+---
 
-grep -C 2 "if.*validCustom" PopupHostGame.cpp
-→ Shows:
-  if (info && info->validCustom && usedLadders.find(info) == usedLadders.end())
-
-Result: ⚠️ BUG FOUND
-- Line 149: atoi() returns ANY integer, but validCustom is Bool
-- Usage assumes boolean (0 or non-zero), but no range check
-- Semantic bug: int-to-bool conversion without validation
-```
+### Beyond this skill: cross-pattern & full-content browsing
+If a request genuinely needs a *different* pattern than what Mode 1 located (e.g. "find all conditionals that test X", regex across the codebase, or browsing full match content with editor integration), don't reach for `grep` inline — that's what the **Hawkeye AI Bridge artifact** is for. It runs searches (including `hawkeye_search` full/content mode) against the same cached index, with tabs, group filters, and "open in editor" actions, without putting large result sets into this conversation's context. Point the user there for that kind of exploration instead of running grep yourself.
 
 ---
 
 ## Mode Decision Guide
 
-**Start with Mode 1. Only use Mode 2 if you explicitly need code context.**
-
-| User Says... | What They Want | Which Mode | Cost | Speed | Example |
-|---------------|---------|-----------|------|-------|---------|
-| "Where is X?" | Location only | Mode 1 ✅ | 100 | <1s | "Where is Player class?" |
-| "Find X" | Location only | Mode 1 ✅ | 100 | <1s | "Find enum signInToken" |
-| "Show me X" | Location only | Mode 1 ✅ | 100 | <1s | "Show me UpdateHealth" |
-| "Is X safe?" | Location + code analysis | Mode 2 | 250-350 | 2-3s | "Is validCustom safe?" |
-| "Find bugs in X" | Location + code analysis | Mode 2 | 250-350 | 2-3s | "Find bugs in GameManager" |
-| "Analyze X" | Location + code analysis | Mode 2 | 250-350 | 2-3s | "Analyze iterator patterns" |
-| "What calls X?" | Location only | Mode 1 ✅ | 100 | <1s | "What calls startGame?" |
-| "How is X used?" | Location + context | Mode 2 | 250-350 | 2-3s | "How is Player initialized?" |
-
-**Key insight:** If you're just looking for a location (where, find, show, what calls), use Mode 1.  
-Only switch to Mode 2 if you need to understand the code around that location.
+| Question Type | Mode | Cost | Speed | Example |
+|---------------|------|------|-------|---------|
+| "Where is X?" | Mode 1 | 100 tokens | <1s | "Where is Player class?" |
+| "Find X" | Mode 1 | 100 tokens | <1s | "Find enum signInToken" |
+| "Search for X" | Mode 1 | 100 tokens | <1s | "Search for UpdateHealth" |
+| "Show me X's locations with context" | Mode 1.5 | ~100 + ~1 batched call | <1s + 1 call | "Show me where validCustom is set" |
+| "Is X safe?" | Mode 1.5 | ~100 + ~1 batched call | <1s + 1 call | "Is validCustom safe?" |
+| "Find bugs in X" | Mode 1.5 | ~100 + ~1 batched call | <1s + 1 call | "Find bugs in GameManager" |
+| "Analyze X" / "What uses X?" | Mode 1.5 | ~100 + ~1 batched call | <1s + 1 call | "Analyze iterator patterns" |
+| Full-project sweep (100s of hits, many files) | Mode 1.5, batched ~140 hits/call | ~100 + N batched calls | <1s + N calls (N ≈ hits/140) | "Show every use of ThePlayerList with context" |
+| Cross-pattern / full-content browsing | Hawkeye AI Bridge artifact | n/a (outside this skill) | n/a | "Find all conditionals that test X" |
 
 ---
 
@@ -234,6 +166,15 @@ Optional filter to restrict searches to specific code groups.
 5. Pass group masks to `hawkeye_search_minimal` via `groupMasks` parameter
 6. If group name not found, inform user of available groups
 
+### hawkeye_expand_context parameters
+
+**Extraction rules:**
+1. `hits`: built from the Mode 1 result(s) — `[{file, lines}, ...]`. For large sweeps, chunk this array into ~120-140-hit batches (grouped by file) and issue one call per batch.
+2. `contextBefore` / `contextAfter`: default `2` / `5`. If the user specifies a single context size N, set both to N.
+3. `mergeGap`: default `8`. If using symmetric `±N` context, set to `2N`.
+4. `maxTotalLines`: leave at default `1000` unless the user explicitly asks for a larger/smaller single response.
+5. After each call, check `truncated` / `truncated_clusters` — re-call with just the truncated hits if `truncated: true`.
+
 **Group Resolution Process:**
 ```
 User input: "Search in Code group"
@@ -246,40 +187,4 @@ Returns: [
   {name: "Docs", mask: "0x004"}
 ]
 ↓
-Match: "Code" → mask: "0x001"
-↓
-Pass to search: groupMasks: ["0x001"]
 ```
-
-**Examples:**
-- "Search in Engine group" → Call get_groups, find Engine mask, pass to search
-- "Search in Code,Tests groups" → Call get_groups, resolve both masks, pass array
-- "Find in Scripts" → Call get_groups, match "Scripts", use its mask
-- Invalid group → "Group 'XYZ' not found. Available groups: Code, Tests, Docs, Engine, Rendering"
-
-**Caching Groups for Performance:**
-
-Once `hawkeye_get_groups()` is called, **cache the groups mapping in context memory** for the remainder of the conversation:
-
-```
-First call: hawkeye_get_groups()
-↓
-Store in context: groups_cache = [
-  {name: "Code", mask: "0x001"},
-  {name: "Tests", mask: "0x002"},
-  {name: "Docs", mask: "0x004"},
-  {name: "Engine", mask: "0x008"},
-  {name: "Rendering", mask: "0x010"}
-]
-
-Subsequent calls: Use groups_cache directly (NO new API call)
-↓
-User: "Now search in Engine group"
-↓
-Lookup: groups_cache → find "Engine" → mask: "0x008" ✓
-↓
-Pass to search: groupMasks: ["0x008"]
-```
-
-**Benefits:**
-- ✅ Reduces API c

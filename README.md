@@ -189,6 +189,16 @@ To make Hawkeye available across all projects, add it to your user-level config 
 
 ### Cursor
 
+#### Quick install (default path)
+
+[![Install in Cursor](https://img.shields.io/badge/Cursor-Add_Hawkeye_MCP-000000?style=flat&logo=cursor)](cursor://anysphere.cursor-deeplink/mcp/install?name=hawkeye&config=eyJjb21tYW5kIjogImNtZCIsICJhcmdzIjogWyIvYyIsICJDOlxcUHJvZ3JhbSBGaWxlc1xcSGF3a2V5ZVxcQUlCcmlkZ2VcXEhhd2tleWVBSUJyaWRnZS5leGUiXX0=)
+
+Click the button above — Cursor will open and ask you to confirm the installation.
+
+> This uses the default install path (`C:\Program Files\Hawkeye\AIBridge\`). If Hawkeye AI Bridge is installed elsewhere, use the manual setup below.
+
+#### Manual setup
+
 Open **Settings → Tools & MCP → New MCP Server** and add:
 
 ```json
@@ -281,6 +291,7 @@ Copy-Item "C:\Program Files\Hawkeye\AIBridge\hawkeye-search.skill" "$skillDir\SK
 | Tool | Description |
 |------|-------------|
 | `hawkeye_search_minimal` | Token-efficient search — returns only file paths and line numbers. **91% fewer tokens** than grep. Best for chat-based lookups. |
+| `hawkeye_expand_context` | Takes the `{file, lines}` hits from `hawkeye_search_minimal` and returns merged, context-expanded code snippets in one call — no per-range `Read` calls needed. Server-side merging (default `mergeGap=8`) collapses nearby hits into single blocks. |
 | `hawkeye_search` | Full search with metadata — returns complete result objects with context. Best for detailed analysis. |
 | `hawkeye_get_groups` | List all searchable code groups configured in Hawkeye. |
 | `hawkeye_get_editors` | List configured editors for opening files. |
@@ -300,6 +311,18 @@ Copy-Item "C:\Program Files\Hawkeye\AIBridge\hawkeye-search.skill" "$skillDir\SK
 | Blind file reading (no Hawkeye) | ~100,000 per session |
 | With `hawkeye_search_minimal` | ~20,000 per session |
 | **Savings** | **~80% reduction** |
+
+### Measured, three-axis benchmark (808-hit / 168-file sweep)
+
+Real numbers from a single search term across a 2.3M-line C++ codebase, comparing the Hawkeye workflow above against `grep -rn` / `grep -C 2,5`:
+
+| Axis | Hawkeye | grep | Result |
+|------|---------|------|--------|
+| Locating all hits | `hawkeye_search_minimal`: ~3.2K tokens | `grep -rn`: ~34K tokens | **91% fewer tokens** |
+| Reading context for hits in one file | `hawkeye_expand_context`: ~3.4K tokens | `grep -C 2,5` (overlap-merged): ~3.4K tokens | Roughly even |
+| Full-project context sweep (round trips) | `hawkeye_expand_context`, batched ~140 hits/call: **~6 calls**, ~88K tokens total | `grep -C 2,5`, ~11 natural chunks: ~261K tokens total | **Fewer round trips and ~66% less total payload**, ~80% lower cumulative reprocessing cost |
+
+The win isn't that reading context is inherently cheaper with Hawkeye (axis 2 is a wash) — it's that `hawkeye_expand_context` does merging *and* reading server-side in one batched call, so full-project sweeps need fewer round trips than grep's natural chunking, not more. The ~140-hit/call ceiling comes from the tool's default `maxTotalLines=1000`; check the `truncated`/`truncated_clusters` fields and re-call for any leftovers.
 
 ---
 
