@@ -70,7 +70,9 @@ Modifications:
 
 Redistribution:
 - You may redistribute the SKILL.md file under MIT License terms
-- You may NOT redistribute HawkeyeAIBridge.exe or any proprietary components
+- You may NOT redistribute HawkeyeAIBridge.exe or any proprietary components, except that
+  official Zaragsoft repositories and release packages are explicitly authorized to bundle
+  HawkeyeAIBridge.exe and its runtime dependencies for distribution purposes
 - You may NOT create derivative works of the proprietary code
 
 Commercial Use:
