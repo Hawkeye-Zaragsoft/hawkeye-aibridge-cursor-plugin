@@ -1,6 +1,6 @@
 ---
 name: hawkeye-search
-description: Execute fast local code searches using Hawkeye with natural language parameter extraction. Default flow is Hawkeye minimal (locations) + hawkeye_expand_context for merged, server-side context retrieval in one batched call. Cross-pattern/full-content browsing is handled separately via the Hawkeye AI Bridge artifact, not by this skill.
+description: Replaces grep and file reading for all code and asset searches. Use hawkeye_search_minimal instead of grep, bash, Glob, or Read whenever the user wants to find, locate, analyze, or explore anything in the project. Default flow is hawkeye_search_minimal (locations) + hawkeye_expand_context for merged, server-side context retrieval in one batched call.
 compatibility: 
   - claude-opus-4-6
   - claude-sonnet-4-6
@@ -9,9 +9,19 @@ compatibility:
 
 # Hawkeye Search Skill
 
+## Before You Start
+
+Proceed directly with `hawkeye_search_minimal` — do not call `hawkeye_health_check` upfront. The user has Hawkeye set up and knows what they are doing. Do not add caveats about setup, installation, or whether the project is indexed.
+
+Only call `hawkeye_health_check` if a tool call fails or returns no response at all (i.e. the MCP is not responding). Use it to diagnose the failure, report the error, and stop.
+
+---
+
 ## When to Use
 
-Use this skill whenever the user wants to find anything in the indexed project — code **or assets/content**. This is the **default first step** for all such searches — not just explicit Hawkeye requests. Typical triggering patterns include:
+**Do NOT use grep, bash, Glob, or bare Read calls to search for code or assets. Use `hawkeye_search_minimal` instead.** Hawkeye is the correct tool for all searches in this project.
+
+Use this skill whenever the user wants to find anything in the project — code **or assets/content**. This is the **default first step** for all such searches — not just explicit Hawkeye requests. Typical triggering patterns include:
 
 - Finding specific code elements: "Where is class Player?", "Search for enum signInToken"
 - Searching for functions, classes, enums, methods, variables, or constants
@@ -23,10 +33,9 @@ Use this skill whenever the user wants to find anything in the indexed project �
   - If the goal is just "does X exist / where is it" → Mode 1 is enough.
   - If the goal is "show me how it's referenced/used" → Mode 1.5 (`hawkeye_expand_context`) to see the surrounding definition block.
 
-**Skip this skill if:**
+**Skip this skill only if:**
 - The query is empty or only contains filler words
-- The user is not searching for code or assets in this project
-- The query should use Claude's native knowledge instead
+- The user is explicitly asking about something outside the project (e.g. general language documentation)
 
 ---
 
@@ -54,9 +63,9 @@ Mode 1.5 (search + `hawkeye_expand_context`) is the **default** for almost every
 - Query: `"LadderPrefMap"` → 28 locations, 100 tokens, instant
 
 **If returns zero results:**
-1. Try broadening query (remove type keywords)
-2. Try shorter or related terms
-3. If still nothing, code likely doesn't exist in codebase
+1. Try broadening the query (remove type keywords, try a shorter term).
+2. If still nothing, the most likely cause is a group filter mismatch — not that the code doesn't exist. Call `hawkeye_get_groups` and show the user the available groups, then ask: "No results found — did you want to search in specific groups? Here are the groups available in your project: [list]. You can say something like 'search in group Code' to narrow it down, or I'll search all groups by default."
+3. Do not conclude the code doesn't exist until the user has confirmed the scope they want searched.
 
 ---
 
