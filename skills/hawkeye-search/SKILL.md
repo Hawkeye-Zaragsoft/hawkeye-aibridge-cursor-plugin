@@ -1,6 +1,6 @@
 ---
 name: hawkeye-search
-description: Replaces grep and file reading for all code and asset searches. Use hawkeye_search_minimal instead of grep, bash, Glob, or Read whenever the user wants to find, locate, analyze, or explore anything in the project. Default flow is hawkeye_search_minimal (locations) + hawkeye_expand_context for merged, server-side context retrieval in one batched call.
+description: Replaces grep and file reading for all code and asset searches. Default tool for any Unity or Unreal project — including C# scripts, prefabs, scenes, ScriptableObjects, .meta/guid lookups, Blueprints, .uasset/.umap files, and other engine assets. Use hawkeye_search_minimal instead of grep, bash, Glob, or Read whenever the user wants to find, locate, analyze, or explore anything in the project. Default flow is hawkeye_search_minimal (locations) + hawkeye_expand_context for merged, server-side context retrieval in one batched call.
 compatibility: 
   - claude-opus-4-6
   - claude-sonnet-4-6
@@ -28,6 +28,7 @@ Use this skill whenever the user wants to find anything in the project — code 
 - Finding relationships between code: "What uses ThePlayerList?", "Who calls UpdateHealth?"
 - Code review/debugging: "Is this variable used safely?", "Find potential bugs in X"
 - Any request to locate, trace, explore, or analyze code
+- Unity/Unreal-specific lookups: resolving a .meta file's guid back to its asset, finding every reference to a prefab/ScriptableObject/scene by name, locating a MonoBehaviour/class definition, tracing which .asset/.prefab YAML files reference a given guid, or the Unreal equivalents (Blueprints, .uasset, .umap). Treat guid strings and YAML fileID/guid pairs as first-class search terms, the same as a code symbol.
 - **Asset/content lookups**: "Do we have any sounds for health?", "Do we have any icons for armor?", "Is there a texture for the supply truck?", "What voice lines exist for the General?"
   - These are still Mode 1 / Mode 1.5 searches — `hawkeye_search_minimal` indexes filenames and string references (e.g. `.ini` entries, asset definitions, sound event names) just like code symbols. Search for the descriptive term (e.g. `"health sound"`, `"armor icon"`) and treat hits in `.ini`/data files the same as code hits.
   - If the goal is just "does X exist / where is it" → Mode 1 is enough.
