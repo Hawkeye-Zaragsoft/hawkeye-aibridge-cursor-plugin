@@ -5,5 +5,5 @@
   "description": "Local code search MCP server that saves ~91% tokens vs generic search. Indexes your codebase for intelligent, efficient code discovery in Cursor.",
   "keywords": ["code-search", "mcp", "local-search", "codebase", "ai-agent"],
   "license": "MIT",
-  "version": "1.0.0"
+  "version": "1.0.5"
 }

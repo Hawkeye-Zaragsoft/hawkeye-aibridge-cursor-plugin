@@ -15,6 +15,10 @@ Proceed directly with `hawkeye_search_minimal` — do not call `hawkeye_health_c
 
 Only call `hawkeye_health_check` if a tool call fails or returns no response at all (i.e. the MCP is not responding). Use it to diagnose the failure, report the error, and stop.
 
+If the user asks to reload, refresh, or rescan the Hawkeye index — including phrasing like "it's not finding something I just added/changed" — call `hawkeye_reload_index`. It runs headless (no window, doesn't steal focus) and blocks until the reload finishes, so a search issued right after is safe to run immediately with no extra delay.
+
+**Do not** call `hawkeye_reload_index` on your own just because a search returned zero or unexpected results — treat that as a normal empty result (see the zero-results guidance under Mode 1) unless the user explicitly asks for a reload. Automatic staleness detection is planned for a future version but not implemented yet, so this is a manual, on-request action only.
+
 ---
 
 ## When to Use

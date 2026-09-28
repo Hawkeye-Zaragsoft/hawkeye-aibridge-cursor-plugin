@@ -297,6 +297,7 @@ Copy-Item "C:\Program Files\Hawkeye\AIBridge\hawkeye-search.skill" "$skillDir\SK
 | `hawkeye_get_editors` | List configured editors for opening files. |
 | `hawkeye_execute_editor` | Open a file in a configured editor at a specific line number. |
 | `hawkeye_health_check` | Verify Hawkeye service is running and accessible. |
+| `hawkeye_reload_index` | Trigger a headless Hawkeye index reload (no window, no stolen focus) on request. |
 | `validate_hawkeye_path` | Check that the configured Hawkeye path exists and is valid. |
 | `get_settings` | Retrieve current Hawkeye configuration (path, max results, case sensitivity). |
 | `save_settings` | Save Hawkeye configuration. |
