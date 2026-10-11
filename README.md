@@ -344,6 +344,16 @@ Ask your AI coding assistant:
 
 ---
 
+## Try it on a public project
+
+You need Windows and the [Hawkeye](https://www.zaragsoft.se/downloads) desktop app (a free trial is available). To test without your own code, index a public C++ codebase such as EA's archived [Command & Conquer Generals / Zero Hour source](https://github.com/electronicarts/CnC_Generals_Zero_Hour) (GPL v3 with additional terms; not affiliated with or endorsed by EA and not part of this project): clone it, add the folder to Hawkeye as a group, wait for indexing, then ask your assistant:
+
+- "Where is `ThePlayerList` declared, and which files use it?"
+- "How does a harvester decide to return to base when the warehouse is too far away?"
+- "Find every place `KINDOF_HARVESTER` is checked, but skip the audio code."
+
+---
+
 ## Privacy and Security
 
 - Hawkeye runs locally/on-premises.

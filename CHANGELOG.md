@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.7] - 2026-10-11
+
+### Changed
+- Server update: tool annotations now include titles, `save_settings` validates its input, and the server also runs on newer .NET runtimes.
+
 ## [1.0.6] - 2026-10-11
 
 ### Changed
