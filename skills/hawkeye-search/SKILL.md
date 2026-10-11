@@ -1,6 +1,6 @@
 ---
 name: hawkeye-search
-description: Replaces grep and file reading for all code and asset searches. Default tool for any Unity or Unreal project — including C# scripts, prefabs, scenes, ScriptableObjects, .meta/guid lookups, Blueprints, .uasset/.umap files, and other engine assets. Use hawkeye_search_minimal instead of grep, bash, Glob, or Read whenever the user wants to find, locate, analyze, or explore anything in the project. Default flow is hawkeye_search_minimal (locations) + hawkeye_expand_context for merged, server-side context retrieval in one batched call.
+description: Default tool for finding anything in the user's code and project files — "where is X defined", "who calls or uses X", "find the Y handler/config/asset", tracing a symbol, string, filename or guid. Searches whatever the user has indexed in Hawkeye, in any language or project type (C#, C++, TypeScript, Python, Java, web, config files, docs), and is especially strong on large codebases and Unity/Unreal projects (prefabs, scenes, ScriptableObjects, .meta/guid lookups, Blueprints, .uasset/.umap). Use hawkeye_search_minimal instead of grep, bash, Glob, or Read for these lookups, and try it first even when unsure the files are indexed — an empty result is cheap, guessing is not. Default flow is hawkeye_search_minimal (locations) + hawkeye_expand_context for merged, server-side context retrieval in one batched call.
 compatibility: 
   - claude-opus-4-6
   - claude-sonnet-4-6
@@ -12,6 +12,18 @@ compatibility:
 ## Before You Start
 
 Proceed directly with `hawkeye_search_minimal` — do not call `hawkeye_health_check` upfront. The user has Hawkeye set up and knows what they are doing. Do not add caveats about setup, installation, or whether the project is indexed.
+
+**Never assume what Hawkeye has indexed.** Hawkeye indexes whatever folders the user put into their groups — any language, any kind of project, not only Unity/Unreal or game code. Do not skip Hawkeye because the question doesn't mention Unity or Unreal, because it sounds generic ("where is the SSO handler defined?"), or because you are unsure the files are indexed. Run the search first: a zero-result search costs almost nothing, a wrong assumption costs the user a worse answer.
+
+A "where is X defined / handled / configured" question is a lookup in the user's project by default. Do not treat it as a request to inspect their home directory or machine configuration unless they say so explicitly. Use grep, Glob, or shell only after Hawkeye returned nothing useful or errored, and tell the user you fell back and why.
+
+**Query syntax.** Hawkeye's query works like its search box:
+
+- Unquoted words are searched as separate terms and the hits for each term are listed. This is broad: `sso credential handler` finds every line with `sso`, `credential` or `handler`.
+- `"quoted text"` searches for that exact phrase only. This is precise: `"sso credentials handler"`.
+- `.cs` (any extension) limits results to files of that type, and `-term` drops lines that contain `term`.
+
+Pick the mode on purpose. If you know the wording or the identifier, search the quoted phrase or the single identifier first. If it returns nothing, or you are exploring, drop the quotes and search the separate terms, adding `.ext` and `-term` to cut noise.
 
 Only call `hawkeye_health_check` if a tool call fails or returns no response at all (i.e. the MCP is not responding). Use it to diagnose the failure, report the error, and stop.
 
