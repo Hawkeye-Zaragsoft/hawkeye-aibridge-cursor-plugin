@@ -1,0 +1,42 @@
+Third-Party Notices - Hawkeye AI Bridge
+=======================================
+
+Hawkeye AI Bridge includes the following third-party software, unmodified, as the
+files listed below. These components are licensed under the MIT License and are not
+covered by the Hawkeye AI Bridge license.
+
+  Package                          File                              Version
+  -------------------------------  --------------------------------  -------
+  System.Text.Json                 System.Text.Json.dll              10.0.2
+  System.Text.Encodings.Web        System.Text.Encodings.Web.dll     10.0.2
+  System.IO.Pipelines              System.IO.Pipelines.dll           10.0.2
+
+Copyright (c) .NET Foundation and Contributors. Copyright (c) Microsoft Corporation.
+Source: https://github.com/dotnet/runtime
+Additional notices for these packages (for example Unicode data):
+https://github.com/dotnet/runtime/blob/main/THIRD-PARTY-NOTICES.TXT
+
+The .NET 8 runtime is NOT included in this package. It is published by Microsoft
+under the MIT License and must be installed separately.
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

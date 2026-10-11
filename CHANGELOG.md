@@ -5,6 +5,7 @@
 ### Changed
 - Server `instructions` in the MCP `initialize` response, plus rewritten tool descriptions and skill: generic "where is X defined" lookups now go to Hawkeye first, with query syntax guidance.
 - Fix: `hawkeye_expand_context` no longer fails the whole call when a hit's line is past the end of its file.
+- License text corrected (product names, third-party notices; Microsoft .NET libraries are no longer listed as proprietary).
 
 ## [1.0.5] - 2026-09-28
 

@@ -11,10 +11,8 @@ OPEN SOURCE COMPONENT (MIT License)
 The following components are licensed under the MIT License and are free for
 modification and redistribution:
 
-- hawkeye-search SKILL.md (Claude skill prompt and definition)
-- SKILL.md parameter extraction and query handling code
-- evals.json (test cases and examples)
-- plugin.json (skill metadata)
+- skills/hawkeye-search/SKILL.md (the hawkeye-search skill prompt and definition)
+- .cursor-plugin/plugin.json (plugin metadata)
 
 MIT License Text:
 -----------------
@@ -47,9 +45,6 @@ decompiled, or redistributed in any form without prior written consent:
 
 - HawkeyeAIBridge.exe (compiled binary executable)
 - HawkeyeAIBridge.dll (compiled assembly)
-- System.IO.Pipelines.dll (runtime dependency)
-- System.Text.Encodings.Web.dll (runtime dependency)
-- System.Text.Json.dll (runtime dependency)
 - HawkeyeAIBridge.runtimeconfig.json (runtime configuration)
 - HawkeyeAIBridge.deps.json (dependency manifest)
 
@@ -82,14 +77,25 @@ Commercial Use:
 
 ================================================================================
 
+SEPARATELY LICENSED PRODUCTS
+================================================================================
+
+The Hawkeye desktop application (hawkeye.exe) that this software connects to is a
+separate product with its own license terms. It is not covered by this license, and
+nothing in this license grants any right to copy, modify or redistribute it.
+
+================================================================================
+
 THIRD-PARTY LICENSES
 ================================================================================
 
 This project uses the following libraries and their respective licenses:
 
-- Anthropic SDK (Claude): Apache 2.0 License
-- .NET Core: MIT License
-- Hawkeye Search Engine: [Hawkeye License - see https://hawkeye-search.com]
+- System.Text.Json, System.Text.Encodings.Web and System.IO.Pipelines (version 10.0.2,
+  Microsoft / .NET Foundation): MIT License. These libraries are included unmodified
+  with the server; see THIRD-PARTY-NOTICES.txt.
+- The .NET 8 runtime (Microsoft, MIT License) is not included and must be installed
+  separately.
 
 Please refer to respective documentation for full license terms.
 
@@ -98,7 +104,7 @@ Please refer to respective documentation for full license terms.
 INTELLECTUAL PROPERTY
 ================================================================================
 
-Hawkeye AI Bridge, the Hawkeye MCP Server, and all associated proprietary code
+Hawkeye AI Bridge and all associated proprietary code
 are intellectual property of Zaragsoft and protected under copyright law.
 
 Hawkeye is a registered trademark of Zaragsoft.
@@ -126,10 +132,10 @@ For licensing inquiries, custom development, or written permission to modify
 proprietary components:
 
 Zaragsoft
-Email: fredrik.zaar@zaragsoft.se
+Email: info@zaragsoft.se
 Website: https://www.zaragsoft.se
 
 ================================================================================
 
-Last Updated: 2026-06-04
+Last Updated: 2026-10-11
 Version
